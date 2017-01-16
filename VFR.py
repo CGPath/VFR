@@ -110,7 +110,7 @@ class Common:
 class SouP_Voronoi(UI):
     def connectAtr(self):
         pm.makeIdentity(apply=True, t=True, r=True, s=True, n=1, pn=True)
-        pm.refresh(cv=True)
+        pm.refresh()
         
         pm.separator('sepB1', e=True, vis=True)
         pm.button('cancelButtB', e=True, vis=True)
@@ -138,7 +138,7 @@ class SouP_Voronoi(UI):
         pm.connectAttr((self.scatterNode + ".outPositionPP"), (self.shatterNode + ".inPositionPP"))
         pm.connectAttr((self.shatterNode + ".outGeometry"), (self.mesh + ".inMesh"))
         #refresh(update) before create shards
-        pm.refresh(cv=True)
+        pm.refresh()
         fr.createShards()
         
     def clCommandA(self, crButton, clButton, prgBar): # cancel command A
@@ -190,7 +190,7 @@ class SouP_Voronoi(UI):
         pm.setAttr((self.selArr[0] + ".visibility"), 0)
         pm.select(self.selArr[0]+'_mesh', r=True)
         pss = pm.ls(sl=True)
-        inSM = cmm.surfaceMaterial(pss[0], 1.0, 0.5, 0.5, 'inMat_')
+        inSM = cmm.surfaceMaterial(pss[0], 0.056, 0.260, 0.030, 'inMat_')
         pm.select(self.mesh)
         pm.hyperShade(assign = inSM)
         fr.chBxTrVtx(self.selArr[0], self.mesh)
@@ -220,13 +220,13 @@ class SouP_Voronoi(UI):
                 pm.xform(cp=True)
                 i = i + 1
             pm.rename((self.selArr[0]+'_mesh'), (self.selArr[0] + '_shards'))
-            pm.button('crChButt', e=True, vis=True, m=True, en=False, bgc=(0.58, 0.58, 0.58))
-            pm.refresh(cv=True)
+            pm.refresh()
             fr.chBxOutMat()
+            pm.button('crChButt', e=True, vis=True, m=True, en=False, bgc=(0.58, 0.58, 0.58))
             pm.button('shatterButt', e=True, vis=True)
             pm.intFieldGrp('fieldGrp', e=True, vis=False)
             
-    def nNormalCheck(self, obj):
+    def nNormalCheck(self, obj): #return info for faceNormal
         obj = pm.ls(fl=True)
         fnlListA = pm.polyInfo(faceNormals=True)
         res = [i.split() for i in fnlListA]
@@ -240,7 +240,7 @@ class SouP_Voronoi(UI):
         nNormal = [[round(numX[i], 2), round(numY[i], 2), round(numZ[i], 2)] for i in numNormal]
         return nNormal, numNormal
         
-    def setInsMat(self):
+    def setInsMat(self): #apply outside shader
         start = pm.timerX()
         pm.select(self.selArr)
         setA = fr.nNormalCheck(self.selArr)
