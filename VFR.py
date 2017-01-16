@@ -5,7 +5,6 @@ import maya.mel as mel
 
 class UI:
     def __init__(self):
-        
         self.scanFunc = False
         self.numPoints = 25
         self.sel = pm.ls(sl=True)
@@ -13,7 +12,7 @@ class UI:
         if pm.window('mainWindow', exists=True):
            pm.deleteUI('mainWindow', window=True)
         pm.window('mainWindow')
-        pm.window('mainWindow', edit=True, width=392, height=230, exists=False, 
+        pm.window('mainWindow', edit=True, width=392, height=220, exists=False, 
         mxb=False, s=False, rtf=True, mb=True, mbv=True, title="Voronoi shatter")
         pm.showWindow('mainWindow')
         
@@ -35,7 +34,7 @@ class UI:
 
         pm.separator(w=380, h=5, st="in")
         pm.button('crChButt', label="CREATE SHARDS", c='fr.sepsShard()', h=30, en=False, bgc=(0.58, 0.58, 0.58))
-        pm.text('textC', label = "First shatter object!", vis=False, bgc=(1.0, 0.3, 0.0))
+        pm.text('textC', vis=False, bgc=(1.0, 0.3, 0.0))
         pm.button('cancelButt', label="CANCEL", bgc=(1.0, 0.3, 0.0), c="fr.clCommandA('crChButt', 'cancelButt', 'prgsA')", vis=False, h=30)
         pm.separator(w=380, h=5, st="in")
         pm.separator('sepB1', w=380, h=5, st="in", vis=False)
@@ -205,7 +204,7 @@ class SouP_Voronoi(UI):
     def sepsShard(self):
         sel = pm.ls(sl=True)
         if sel == []:
-           pm.text('textC', edit=True, vis=True)
+           pm.text('textC', label = ('select %s and press button') % (self.selArr[0]+ '_mesh'), edit=True, vis=True)
         else:
             pm.text('textC', edit=True, vis=False)
             pm.separator('sepB1', e=True, vis=False)
