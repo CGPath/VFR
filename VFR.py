@@ -28,7 +28,11 @@ class UI:
 
         pm.separator(w=380, h=5, st="in")
         pm.button('shatterButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c='fr.startCheck()', h=30)
-        pm.intFieldGrp('fieldGrp', label="Shards amount:", cal=(1, 'center'), cc='fr.setIntVolume()', vis=False)
+        pm.rowLayout('rowL', nc=3, cw3=(145, 80, 150), adj=2, columnAlign=(2, "center"), columnAttach3=("both", "both", "both"), vis=False)
+        pm.text(label = "Select")
+        pm.intFieldGrp('fieldGrp', cal=(1, 'center'), cc='fr.setIntVolume()', vis=True)
+        pm.text(label = "object!")
+        pm.setParent('..')
         pm.text('textA',label = "Select polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
         pm.separator(w=380, h=5, st="in")
 
@@ -117,7 +121,7 @@ class SouP_Voronoi(UI):
         pm.separator('sepB2', e=True, vis=True)
         
         pm.button('crChButt', e=True, m=True, en=True, bgc=(0.0, 0.5, 0.0))
-        pm.intFieldGrp('fieldGrp', edit=True, cal=(1, 'center'), v1=25, cc='fr.setIntVolume()', vis=True)
+        pm.rowLayout('rowL', e=True, vis=True)
         pm.button('shatterButt', e=True, vis=False)
         pm.text('textA', edit=True, vis=False)
         #create variable
@@ -155,13 +159,13 @@ class SouP_Voronoi(UI):
         
         pm.button('shatterButt', e=True, vis=True)
         pm.button('crChButt', e=True, m=True, en=False, vis=True, bgc=(0.58, 0.58, 0.58))
-        pm.intFieldGrp('fieldGrp', e=True, vis=False)
+        pm.rowLayout('rowL', e=True, vis=False)
         pm.text('textC', e=True, vis=False)
         
         pm.delete(self.selArr[0]+'_scatter')
         pm.delete(ch=True) 
         
-    def checkPolyObj(self, selObj): #check polygon object
+    def checkPolyObj(self, selObj): #check for polygon object
         selObj = pm.ls(sl=True)
         polyChk = pm.filterExpand(selObj, ex=True, sm=12)
         if pm.nodeType(polyChk) == 'transform':
@@ -180,7 +184,7 @@ class SouP_Voronoi(UI):
         if pm.checkBox('chBxA', q=True, v=True) == True:
            fr.setInsMat()
            
-    def chBxTrVtx(self, obj, shMesh): #transfer attribute from main object
+    def chBxTrVtx(self, obj, shMesh):
         if pm.checkBox('chBxB', q=True, v=True) == True:
            pm.transferAttributes(obj, shMesh, transferNormals=1, sampleSpace=1)
             
@@ -196,12 +200,12 @@ class SouP_Voronoi(UI):
         fr.chBxTrVtx(self.selArr[0], self.mesh)
         pm.cycleCheck(e=False)
         
-    def setIntVolume(self): #intField 
+    def setIntVolume(self):
         self.vSize = pm.intFieldGrp('fieldGrp', q=True, value1=True)
         pm.setAttr((self.scatterNode + ".maxNumberOfPoints"), self.vSize)
         print "New shards amount: " + str(self.vSize) + ', please wait...'
         
-    def sepsShard(self): #separate shard & apply outside material
+    def sepsShard(self):
         sel = pm.ls(sl=True)
         if sel == []:
            pm.text('textC', label = ('select %s and press button') % (self.selArr[0]+ '_mesh'), edit=True, vis=True)
@@ -224,7 +228,7 @@ class SouP_Voronoi(UI):
             fr.chBxOutMat()
             pm.button('crChButt', e=True, vis=True, m=True, en=False, bgc=(0.58, 0.58, 0.58))
             pm.button('shatterButt', e=True, vis=True)
-            pm.intFieldGrp('fieldGrp', e=True, vis=False)
+            pm.rowLayout('rowL', e=True, vis=False)
             
     def nNormalCheck(self, obj): #return info for faceNormal
         obj = pm.ls(fl=True)
