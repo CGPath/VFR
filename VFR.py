@@ -161,7 +161,7 @@ class SouP_Voronoi(UI):
         pm.delete(self.selArr[0]+'_scatter')
         pm.delete(ch=True) 
         
-    def checkPolyObj(self, selObj): #check for polygon object
+    def checkPolyObj(self, selObj): #check polygon object
         selObj = pm.ls(sl=True)
         polyChk = pm.filterExpand(selObj, ex=True, sm=12)
         if pm.nodeType(polyChk) == 'transform':
@@ -180,7 +180,7 @@ class SouP_Voronoi(UI):
         if pm.checkBox('chBxA', q=True, v=True) == True:
            fr.setInsMat()
            
-    def chBxTrVtx(self, obj, shMesh):
+    def chBxTrVtx(self, obj, shMesh): #transfer attribute from main object
         if pm.checkBox('chBxB', q=True, v=True) == True:
            pm.transferAttributes(obj, shMesh, transferNormals=1, sampleSpace=1)
             
@@ -196,12 +196,12 @@ class SouP_Voronoi(UI):
         fr.chBxTrVtx(self.selArr[0], self.mesh)
         pm.cycleCheck(e=False)
         
-    def setIntVolume(self):
+    def setIntVolume(self): #intField 
         self.vSize = pm.intFieldGrp('fieldGrp', q=True, value1=True)
         pm.setAttr((self.scatterNode + ".maxNumberOfPoints"), self.vSize)
         print "New shards amount: " + str(self.vSize) + ', please wait...'
         
-    def sepsShard(self):
+    def sepsShard(self): #separate shard & apply outside material
         sel = pm.ls(sl=True)
         if sel == []:
            pm.text('textC', label = ('select %s and press button') % (self.selArr[0]+ '_mesh'), edit=True, vis=True)
