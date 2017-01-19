@@ -29,9 +29,9 @@ class UI:
         pm.separator(w=380, h=5, st="in")
         pm.button('shatterButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c='fr.startCheck()', h=30)
         pm.rowLayout('rowL', nc=3, cw3=(145, 80, 150), adj=2, columnAlign=(2, "center"), columnAttach3=("both", "both", "both"), vis=False)
-        pm.text(label = "Select")
+        pm.text(label = "shards amount:")
         pm.intFieldGrp('fieldGrp', cal=(1, 'center'), cc='fr.setIntVolume()', vis=True)
-        pm.text(label = "object!")
+        pm.text(label = "please wait...")
         pm.setParent('..')
         pm.text('textA',label = "Select polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
         pm.separator(w=380, h=5, st="in")
@@ -116,6 +116,7 @@ class SouP_Voronoi(UI):
         pm.makeIdentity(apply=True, t=True, r=True, s=True, n=1, pn=True)
         pm.refresh()
         
+        pm.intFieldGrp('fieldGrp', e=True, v1 = 25, vis=True)
         pm.separator('sepB1', e=True, vis=True)
         pm.button('cancelButtB', e=True, vis=True)
         pm.separator('sepB2', e=True, vis=True)
@@ -194,7 +195,7 @@ class SouP_Voronoi(UI):
         pm.setAttr((self.selArr[0] + ".visibility"), 0)
         pm.select(self.selArr[0]+'_mesh', r=True)
         pss = pm.ls(sl=True)
-        inSM = cmm.surfaceMaterial(pss[0], 0.056, 0.260, 0.030, 'inMat_')
+        inSM = cmm.surfaceMaterial(pss[0], 0.461, 1.0, 0.0, 'inMat_')
         pm.select(self.mesh)
         pm.hyperShade(assign = inSM)
         fr.chBxTrVtx(self.selArr[0], self.mesh)
@@ -362,7 +363,7 @@ class Ou_Voronoi(UI):
                     newFaces = aftFaces - oriFaces
                
                     cutFaces = ( '%s.f[ %d ]' % (workingObj[0], (aftFaces + newFaces - 1)))
-                    cmds.sets(cutFaces, forceElement = (surfaceMat + 'SG'), e=True)
+                    cmds.setrs(cutFaces, forceElement = (surfaceMat + 'SG'), e=True)
             cmds.xform(workingObj, cp=True)
             pm.rename(workingObj[0], (sel[0] + '_chunk_' + str(step)))
             pm.refresh(cv=True)
