@@ -363,7 +363,7 @@ class Ou_Voronoi(UI):
                     newFaces = aftFaces - oriFaces
                
                     cutFaces = ( '%s.f[ %d ]' % (workingObj[0], (aftFaces + newFaces - 1)))
-                    cmds.setrs(cutFaces, forceElement = (surfaceMat + 'SG'), e=True)
+                    cmds.sets(cutFaces, forceElement = (surfaceMat + 'SG'), e=True)
             cmds.xform(workingObj, cp=True)
             pm.rename(workingObj[0], (sel[0] + '_chunk_' + str(step)))
             pm.refresh(cv=True)
