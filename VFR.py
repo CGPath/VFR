@@ -68,11 +68,11 @@ class UI:
         pm.intFieldGrp('shField', label="number of pieces:", v1=25, cal=(1, 'center'), vis=True, cc='ov.checkNumPoints()')
         pm.separator(w=380, h=10, st="in")
         pm.button('shButt', label="SHATTER", bgc=(0.0, 0.5, 0.0), c='ov.selInfCheck()', vis=True, h=30)
+        pm.text('textF', label = "Select polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
         pm.button('clButt', label="CANCEL", bgc=(1.0, 0.3, 0.0), c="ov.clCommand('shButt', 'clButt', 'prgs')", vis=False, h=30)
         pm.separator(w=380, h=5, st="in")
         pm.separator(w=380, h=20, st="none")
         pm.progressBar('prgs', width=240, isInterruptable=True, progress = 0, vis=False)
-        pm.text('textF', label = "Select polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
         pm.setParent('..')
         pm.setParent('..')
         pm.setParent('..')
@@ -187,14 +187,12 @@ class SouP_Voronoi(UI):
 
     def startCheck(self): #start func
         obj = pm.ls(sl=True)
-        for i in obj:
-            print i
-            #if fr.checkPolyObj(i) == True:
+        if fr.checkPolyObj(i) == True:
             self.selArr = pm.ls(sl=True, o=True, fl=True)
             self.selBuffer.append(self.selArr[0])
             fr.connectAtr()
-            #else:
-                #pm.text('textA', e=True, vis=True)
+        else:
+            pm.text('textA', e=True, vis=True)
       
     def chBxOutMat(self): #check box
         if pm.checkBox('chBxA', q=True, v=True) == True:
@@ -315,7 +313,6 @@ class SouP_Voronoi(UI):
         print "work time %.2f sec. " % (totalTime)
 
 class Ou_Voronoi(UI):
-    
     def chBxTrVtxC(self, obj, shMesh):
         if pm.checkBox('chBxC', q=True, v=True) == True:
             pm.transferAttributes(obj, shMesh, transferNormals=1, sampleSpace=1)
