@@ -187,7 +187,7 @@ class SouP_Voronoi(UI):
 
     def startCheck(self): #start func
         obj = pm.ls(sl=True)
-        if fr.checkPolyObj(i) == True:
+        if fr.checkPolyObj(obj) == True:
             self.selArr = pm.ls(sl=True, o=True, fl=True)
             self.selBuffer.append(self.selArr[0])
             fr.connectAtr()
@@ -206,7 +206,6 @@ class SouP_Voronoi(UI):
         del self.selBuffer[:]
         pm.rowLayout('rowD', e=True, vis=False)
         pm.checkBox('chBxD', e=True, vis=False, v=False, label = "Remember main object: - - - ")
-
         
     def createShards(self):
         pm.text('textC', edit=True, vis=False)
