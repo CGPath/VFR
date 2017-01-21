@@ -13,7 +13,7 @@ class UI:
         if pm.window('mainWindow', exists=True):
            pm.deleteUI('mainWindow', window=True)
         pm.window('mainWindow')
-        pm.window('mainWindow', edit=True, width=392, height=240, exists=False, 
+        pm.window('mainWindow', edit=True, width=392, height=230, exists=False, 
         mxb=False, s=False, rtf=True, mb=True, mbv=True, title="Voronoi shatter")
         pm.showWindow('mainWindow')
         
@@ -38,20 +38,20 @@ class UI:
         pm.intFieldGrp('fieldGrp', cal=(1, 'center'), cc='fr.setIntVolume()', vis=True)
         pm.text(label = "test...", vis=False)
         pm.setParent('..')
-        pm.text('textA',label = "Select polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
+        pm.text('textA',label = "Select single polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
         pm.separator(w=380, h=5, st="in")
 
         pm.separator(w=380, h=5, st="in")
         pm.button('crChButt', label="CREATE SHARDS", c='fr.sepsShard()', h=30, en=False, bgc=(0.58, 0.58, 0.58))
         pm.text('textC', vis=False, bgc=(1.0, 0.3, 0.0))
-        pm.button('cancelButt', label="CANCEL", bgc=(1.0, 0.3, 0.0), c="fr.clCommandA('crChButt', 'cancelButt', 'prgsA')", vis=False, h=30)
+        pm.button('cancelButt', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="fr.clCommandA('crChButt', 'cancelButt', 'prgsA')", vis=False, h=30)
         pm.separator(w=380, h=5, st="in")
         pm.separator('sepB1', w=380, h=5, st="in", vis=False)
-        pm.button('cancelButtB', label="CANCEL", bgc=(1.0, 0.3, 0.0), c="fr.clCommandB()", vis=False, h=30)
+        pm.button('cancelButtB', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="fr.clCommandB()", vis=False, h=30)
         pm.separator('sepB2', w=380, h=5, st="in", vis=False)
-        pm.separator(w=380, h=15, st = "none")
+        pm.separator(w=380, h=10, st = "none")
         pm.progressBar('prgsA', width=240, isInterruptable=True, vis=False)
-        pm.separator(w=380, h=15, st = "none")
+        pm.separator(w=380, h=10, st = "none")
         pm.setParent('..')
         pm.setParent('..')
         pm.setParent('..')
@@ -69,7 +69,7 @@ class UI:
         pm.separator(w=380, h=10, st="in")
         pm.button('shButt', label="SHATTER", bgc=(0.0, 0.5, 0.0), c='ov.selInfCheck()', vis=True, h=30)
         pm.text('textF', label = "Select polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
-        pm.button('clButt', label="CANCEL", bgc=(1.0, 0.3, 0.0), c="ov.clCommand('shButt', 'clButt', 'prgs')", vis=False, h=30)
+        pm.button('clButt', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="ov.clCommand('shButt', 'clButt', 'prgs')", vis=False, h=30)
         pm.separator(w=380, h=5, st="in")
         pm.separator(w=380, h=20, st="none")
         pm.progressBar('prgs', width=240, isInterruptable=True, progress = 0, vis=False)
@@ -172,7 +172,7 @@ class SouP_Voronoi(UI):
            self.scanFunc = True
         pm.button(crButton, e=True, vis=True)
         pm.button(clButton, e=True, vis=False)
-        pm.progressBar(prgBar, edit=True, vis=False)
+        pm.progressBar('prgBar', edit=True, vis=False)
         
     def clCommandB(self):
         pm.separator('sepB1', e=True, vis=False)
@@ -211,6 +211,7 @@ class SouP_Voronoi(UI):
         del self.selBuffer[:]
         pm.rowLayout('rowD', e=True, vis=False)
         pm.checkBox('chBxD', e=True, vis=False, v=False, label = "Remember main object: - - - ")
+
         
     def setIntVolume(self):
         self.vSize = pm.intFieldGrp('fieldGrp', q=True, value1=True)
