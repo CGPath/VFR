@@ -133,7 +133,6 @@ class SouP_Voronoi(UI):
         pm.rowLayout('rowL', e=True, vis=True)
         pm.button('shatterButt', e=True, vis=False)
         pm.text('textA', edit=True, vis=False)
-        
         #create variable
         self.shapeArr = pm.listRelatives(shapes=True)
         self.scatterNode = pm.createNode('scatter', name=(self.selArr[0] + '_scatterShape'))
@@ -151,21 +150,9 @@ class SouP_Voronoi(UI):
         pm.connectAttr((self.scatterNode + ".outGeometry"), (self.shatterNode + ".inGeometry"))
         pm.connectAttr((self.scatterNode + ".outPositionPP"), (self.shatterNode + ".inPositionPP"))
         pm.connectAttr((self.shatterNode + ".outGeometry"), (self.mesh + ".inMesh"))
-        
-        #create shards
-        pm.text('textC', edit=True, vis=False)
-        pm.setAttr((self.shatterNode + ".autoEvaluate"), 1)
-        pm.setAttr((self.selArr[0] + ".visibility"), 0)
-        pm.select(self.selArr[0]+'_mesh', r=True)
-        if pm.checkBox('chBxD', q=True, v=True) == True:
-            inSM = cmm.surfaceMaterial(self.selBuffer[0]+'_mesh', 0.461, 1.0, 0.0, 'inMat_')
-        else:
-            inSM = cmm.surfaceMaterial(self.selArr[0]+'_mesh', 0.461, 1.0, 0.0, 'inMat_')
-        pm.select(self.mesh)
-        pm.hyperShade(assign = inSM)
-        if pm.checkBox('chBxB', q=True, v=True) == True:
-           pm.transferAttributes(self.selArr[0], self.mesh, transferNormals=1, sampleSpace=1)
-        pm.cycleCheck(e=False)
+        #refresh(update) before create shards
+        pm.refresh()
+        fr.createShards()
         
     def clCommandA(self, crButton, clButton, prgBar): # cancel command A
         if self.scanFunc == False:
@@ -206,12 +193,33 @@ class SouP_Voronoi(UI):
             fr.connectAtr()
         else:
             pm.text('textA', e=True, vis=True)
-
+      
+    def chBxOutMat(self): #check box
+        if pm.checkBox('chBxA', q=True, v=True) == True:
+           fr.setInsMat()
+           
+    def chBxTrVtx(self, obj, shMesh):
+        if pm.checkBox('chBxB', q=True, v=True) == True:
+           pm.transferAttributes(obj, shMesh, transferNormals=1, sampleSpace=1)
+           
     def resetButtD(self):
         del self.selBuffer[:]
         pm.rowLayout('rowD', e=True, vis=False)
         pm.checkBox('chBxD', e=True, vis=False, v=False, label = "Remember main object: - - - ")
 
+        
+    def createShards(self):
+        pm.text('textC', edit=True, vis=False)
+
+        pm.setAttr((self.shatterNode + ".autoEvaluate"), 1)
+        pm.setAttr((self.selArr[0] + ".visibility"), 0)
+        pm.select(self.selArr[0]+'_mesh', r=True)
+        pss = pm.ls(sl=True)
+        inSM = cmm.surfaceMaterial(pss[0], 0.461, 1.0, 0.0, 'inMat_')
+        pm.select(self.mesh)
+        pm.hyperShade(assign = inSM)
+        fr.chBxTrVtx(self.selArr[0], self.mesh)
+        pm.cycleCheck(e=False)
         
     def setIntVolume(self):
         self.vSize = pm.intFieldGrp('fieldGrp', q=True, value1=True)
@@ -238,8 +246,7 @@ class SouP_Voronoi(UI):
                 i = i + 1
             pm.rename((self.selArr[0]+'_mesh'), (self.selArr[0] + '_shards'))
             pm.refresh()
-            if pm.checkBox('chBxA', q=True, v=True) == True:
-               fr.setInsMat()
+            fr.chBxOutMat()
             #
             pm.button('crChButt', e=True, vis=True, m=True, en=False, bgc=(0.58, 0.58, 0.58))
             pm.button('shatterButt', e=True, vis=True)
@@ -259,7 +266,7 @@ class SouP_Voronoi(UI):
         nNormal = [[round(numX[i], 2), round(numY[i], 2), round(numZ[i], 2)] for i in numNormal]
         return nNormal, numNormal
  
-    def chBxDfoo(self):
+    def chBxCfoo(self):
         if pm.checkBox('chBxD', q=True, v=True) == True:
             sels = self.selBuffer[0]
         else:
@@ -271,7 +278,7 @@ class SouP_Voronoi(UI):
         pm.button('crChButt', e=True, vis=False)
         pm.button('cancelButt', e=True, vis=True)
         
-        selObj = fr.chBxDfoo()
+        selObj = fr.chBxCfoo()
         pm.select(selObj)
         setA = fr.nNormalCheck(selObj)
         self.scanFunc = False
@@ -296,7 +303,7 @@ class SouP_Voronoi(UI):
                        if self.scanFunc == True:
                            pm.progressBar('prgsA', q=True, endProgress=True)
                            break
-        cmm.fixInNormal(self.arrShards, selObj, '_meshSG')
+        cmm.fixInNormal(self.arrShards, self.selArr[0], '_meshSG')
     
         pm.progressBar('prgsA', edit=True, vis=False)
         pm.button('crChButt', e=True, vis=True, m=True, en=False)
