@@ -25,27 +25,26 @@ class UI:
         pm.separator(w=380, h=10, st="in")
         pm.checkBox('chBxA', label = "Create inside-outside shader (experemental)")
         pm.checkBox('chBxB', label = "Transfer vertexNormal from object")
-        pm.rowLayout('rowD', nc=2, cw2=(145, 50), adj=1, columnAlign=(1, "center"), columnAttach2=("both", "both"), vis=False)
+        pm.rowLayout('rowD', nc=2, cw2=(145, 50), adj=1, columnAlign=(1, "center"), columnAttach2=("both", "both"), vis=True)
         pm.checkBox('chBxD', label = "Remember main object: - - - ", vis=True)
         pm.button('buttD', w=30, h=20, label='reset', c='fr.resetButtD()', vis=True)
         pm.setParent('..')
-        pm.separator(w=380, h=5, st = "none")
-
         pm.separator(w=380, h=5, st="in")
-        pm.button('shatterButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c='fr.startCheck()', h=30)
-        pm.rowLayout('rowL', nc=3, cw3=(145, 50, 150), adj=2, columnAlign=(2, "center"), columnAttach3=("both", "both", "both"), vis=False)
+        pm.rowLayout('rowL', nc=3, cw3=(145, 50, 150), adj=2, columnAlign=(2, "center"), columnAttach3=("both", "both", "both"), vis=True)
         pm.text(label = "shards amount:")
-        pm.intFieldGrp('fieldGrp', cal=(1, 'center'), cc='fr.setIntVolume()', vis=True)
+        pm.intFieldGrp('fieldGrp', cal=(1, 'center'), v1= 25, vis=True)
         pm.text(label = "test...", vis=False)
         pm.setParent('..')
+        pm.separator(w=380, h=5, st="in")
+        pm.button('shatterButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c='fr.startCheck()', h=30)
+
         pm.text('textA',label = "Select single polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
         pm.separator(w=380, h=5, st="in")
 
-        pm.separator(w=380, h=5, st="in")
-        pm.button('crChButt', label="CREATE SHARDS", c='fr.sepsShard()', h=30, en=False, bgc=(0.58, 0.58, 0.58))
+
+        pm.button('crChButt', label="CREATE SHARDS", c='fr.sepsShard()', h=30, vis=False, bgc=(0.0, 0.5, 0.0))
         pm.text('textC', vis=False, bgc=(1.0, 0.3, 0.0))
         pm.button('cancelButt', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="fr.clCommandA('crChButt', 'cancelButt', 'prgsA')", vis=False, h=30)
-        pm.separator(w=380, h=5, st="in")
         pm.separator('sepB1', w=380, h=5, st="in", vis=False)
         pm.button('cancelButtB', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="fr.clCommandB()", vis=False, h=30)
         pm.separator('sepB2', w=380, h=5, st="in", vis=False)
@@ -124,12 +123,11 @@ class SouP_Voronoi(UI):
         
         pm.rowLayout('rowD', e=True, vis=True)
         pm.checkBox('chBxD', e=True, vis=True, label = "Remember main object: %s" % (self.selBuffer[0]))
-        pm.intFieldGrp('fieldGrp', e=True, v1 = 25, vis=True)
         pm.separator('sepB1', e=True, vis=True)
         pm.button('cancelButtB', e=True, vis=True)
         pm.separator('sepB2', e=True, vis=True)
         
-        pm.button('crChButt', e=True, m=True, en=True, bgc=(0.0, 0.5, 0.0))
+        pm.button('crChButt', e=True, vis=True)
         pm.rowLayout('rowL', e=True, vis=True)
         pm.button('shatterButt', e=True, vis=False)
         pm.text('textA', edit=True, vis=False)
@@ -159,7 +157,7 @@ class SouP_Voronoi(UI):
            self.scanFunc = True
         pm.button(crButton, e=True, vis=True)
         pm.button(clButton, e=True, vis=False)
-        pm.progressBar('prgBar', edit=True, vis=False)
+        pm.progressBar(prgBar, edit=True, vis=False)
         
     def clCommandB(self):
         pm.separator('sepB1', e=True, vis=False)
@@ -167,11 +165,11 @@ class SouP_Voronoi(UI):
         pm.separator('sepB2', e=True, vis=False)
         
         pm.button('shatterButt', e=True, vis=True)
-        pm.button('crChButt', e=True, m=True, en=False, vis=True, bgc=(0.58, 0.58, 0.58))
-        pm.rowLayout('rowL', e=True, vis=False)
+        pm.button('crChButt', e=True, vis=False)
+        pm.rowLayout('rowL', e=True, vis=True)
         pm.text('textC', e=True, vis=False)
-        pm.rowLayout('rowD', e=True, vis=False)
-        pm.checkBox('chBxD', e=True, vis=False, v=False, label = "Remember main object: - - - ")
+        pm.rowLayout('rowD', e=True, vis=True)
+        pm.checkBox('chBxD', e=True, vis=True, v=False, label = "Remember main object: - - - ")
         del self.selBuffer[:]
         
         pm.delete(self.selArr[0]+'_scatter')
@@ -204,8 +202,7 @@ class SouP_Voronoi(UI):
            
     def resetButtD(self):
         del self.selBuffer[:]
-        pm.rowLayout('rowD', e=True, vis=False)
-        pm.checkBox('chBxD', e=True, vis=False, v=False, label = "Remember main object: - - - ")
+        pm.checkBox('chBxD', e=True, vis=True, v=False, label = "Remember main object: - - - ")
 
         
     def createShards(self):
@@ -248,9 +245,9 @@ class SouP_Voronoi(UI):
             pm.refresh()
             fr.chBxOutMat()
             #
-            pm.button('crChButt', e=True, vis=True, m=True, en=False, bgc=(0.58, 0.58, 0.58))
+            pm.button('crChButt', e=True, vis=False)
             pm.button('shatterButt', e=True, vis=True)
-            pm.rowLayout('rowL', e=True, vis=False)
+            pm.rowLayout('rowL', e=True, vis=True)
             
     def nNormalCheck(self, obj): #return info for faceNormal
         obj = pm.ls(fl=True)
@@ -306,7 +303,7 @@ class SouP_Voronoi(UI):
         cmm.fixInNormal(self.arrShards, self.selArr[0], '_meshSG')
     
         pm.progressBar('prgsA', edit=True, vis=False)
-        pm.button('crChButt', e=True, vis=True, m=True, en=False)
+        pm.button('crChButt', e=True, vis=False)
         pm.button('cancelButt', e=True, vis=False)
         
         totalTime = pm.timerX(startTime = start)
