@@ -3,7 +3,6 @@ import random
 import maya.api.OpenMaya as OpenMaya
 import pymel.core as pm
 import maya.mel as mel
-import cProfile
 
 
 class UI:
@@ -97,10 +96,11 @@ class UI:
 
 # common functions
 class Common(UI):
-    def surfaceMaterial(self, sel, R, G, B, nameMat):
+    @staticmethod
+    def surfaceMaterial(sel, R, G, B, nameMat):
         mel.eval('MLdeleteUnused;')
         name = (nameMat + sel)
-        if cmds.objExists(name) == True:
+        if cmds.objExists(name):
             print 'WARRING! Duplicate material or shader group... clearing'
         else:
             cmds.shadingNode('lambert', asShader=True, name=name)
@@ -109,15 +109,15 @@ class Common(UI):
             cmds.setAttr((name + '.color'), R, G, B, type="double3")
         return name
 
-    def fixInNormal(self, obj, mainObj, SG):
+    @staticmethod
+    def fixInNormal(obj, mainObj, SG):
         pm.select(obj)
         evalList = pm.ls(sl=True)
         pm.delete(evalList, ch=True)
         evalList = pm.ls(sl=True, o=True, dag=True, exactType="mesh")
         connList = pm.listConnections(evalList, type='shadingEngine')
         res = []
-        for i in connList:
-            res.append('inMat_' + mainObj + SG)
+        [res.append('inMat_' + mainObj + SG) for nstr in connList]
         pss = pm.filterExpand(res, sm=34, ex=True)
         pm.select(pss, r=True)
         pm.polySetToFaceNormal(setUserNormal=True)
@@ -163,7 +163,7 @@ class SouP_Voronoi(UI):
         fr.createShards()
 
     def clCommandA(self, crButton, clButton, prgBar):  # cancel command A
-        if self.scanFunc == False:
+        if not self.scanFunc:
             self.scanFunc = True
         pm.button(crButton, e=True, vis=True)
         pm.button(clButton, e=True, vis=False)
@@ -185,8 +185,9 @@ class SouP_Voronoi(UI):
 
         pm.delete(self.selArr[0] + '_scatter')
         pm.delete(ch=True)
-
-    def checkPolyObj(self, selObj):  # check for polygon object
+    
+    @staticmethod
+    def checkPolyObj(selObj):  # check for polygon object
         selObj = pm.ls(sl=True)
         polyChk = pm.filterExpand(selObj, ex=True, sm=12)
         if pm.nodeType(polyChk) == 'transform':
@@ -196,7 +197,7 @@ class SouP_Voronoi(UI):
 
     def startCheck(self):  # start func
         obj = pm.ls(sl=True)
-        if fr.checkPolyObj(obj) == True:
+        if fr.checkPolyObj(obj):
             self.selArr = pm.ls(sl=True, o=True, fl=True)
             self.selBuffer.append(self.selArr[0])
             fr.connectAtr()
@@ -204,12 +205,12 @@ class SouP_Voronoi(UI):
             pm.text('textA', e=True, vis=True)
 
     def chBxOutMat(self):  # check box
-        if pm.checkBox('chBxA', q=True, v=True) == True:
+        if pm.checkBox('chBxA', q=True, v=True):
             # cProfile.run('fr.setInsMat()')
             fr.setInsMat()
 
     def chBxTrVtx(self, obj, shMesh):
-        if pm.checkBox('chBxB', q=True, v=True) == True:
+        if pm.checkBox('chBxB', q=True, v=True):
             pm.transferAttributes(obj, shMesh, transferNormals=1, sampleSpace=1)
 
     def resetButtD(self):
@@ -236,8 +237,8 @@ class SouP_Voronoi(UI):
 
     def sepsShard(self):
         sel = pm.ls(sl=True)
-        if sel == []:
-            pm.text('textC', label=('select %s and press button') % (self.selArr[0] + '_mesh'), edit=True, vis=True)
+        if not sel:
+            pm.text('textC', label='select %s and press button' % (self.selArr[0] + '_mesh'), edit=True, vis=True)
         else:
             pm.text('textC', edit=True, vis=False)
             pm.separator('sepB1', e=True, vis=False)
@@ -251,7 +252,7 @@ class SouP_Voronoi(UI):
             for shard in self.arrShards:
                 pm.rename(shard, self.selArr[0] + "_shard_" + str(i))
                 pm.xform(cp=True)
-                i = i + 1
+                i += 1
             pm.rename((self.selArr[0] + '_mesh'), (self.selArr[0] + '_shards'))
             pm.refresh()
             fr.chBxOutMat()
@@ -261,7 +262,8 @@ class SouP_Voronoi(UI):
             pm.rowLayout('rowL', e=True, vis=True)
             pm.intFieldGrp('fieldGrp', e=True, m=True, en=True)
 
-    def nNormalCheck(self, obj):
+    @staticmethod
+    def nNormalCheck(obj):
         shape = obj.getShape()
         faces = pm.MeshFace(obj)
         sel = OpenMaya.MSelectionList()
@@ -274,7 +276,7 @@ class SouP_Voronoi(UI):
         return nNormal, numNormal
 
     def chBxCfoo(self):
-        if True == pm.checkBox('chBxD', q=True, v=True):
+        if pm.checkBox('chBxD', q=True, v=True):
             sels = self.selBuffer[0]
         else:
             sels = self.selArr[0]
@@ -296,7 +298,7 @@ class SouP_Voronoi(UI):
         selB = pm.ls(sl=True)
         inc = 0
         for shard in selB:
-            if self.scanFunc == True:
+            if self.scanFunc:
                 pm.progressBar('prgsA', q=True, endProgress=True)
                 break
             pm.progressBar('prgsA', e=True, progress=inc, vis=True, maxValue=len(selB) - 1)
@@ -312,7 +314,7 @@ class SouP_Voronoi(UI):
                         # pm.hyperShade(assign = sMat)
                         cmds.sets(sFaces, forceElement=(sMat + 'SG'), e=True)
                         # pm.sets(sMat, forceElement = sFaces, e=True)
-                        if self.scanFunc == True:
+                        if self.scanFunc:
                             pm.progressBar('prgsA', q=True, endProgress=True)
                             break
         cmm.fixInNormal(self.arrShards, self.selArr[0], '_meshSG')
@@ -326,12 +328,13 @@ class SouP_Voronoi(UI):
 
 
 class Ou_Voronoi(UI):
-    def chBxTrVtxC(self, obj, shMesh):
-        if pm.checkBox('chBxC', q=True, v=True) == True:
+    @staticmethod
+    def chBxTrVtxC(obj, shMesh):
+        if pm.checkBox('chBxC', q=True, v=True):
             pm.transferAttributes(obj, shMesh, transferNormals=1, sampleSpace=1)
 
     def clCommand(self, crButton, clButton, prgBar):
-        if self.scanFunc == False:
+        if not self.scanFunc:
             self.scanFunc = True
         pm.button(crButton, q=True, e=True, vis=True)
         pm.button(clButton, q=True, e=True, vis=False)
@@ -340,13 +343,13 @@ class Ou_Voronoi(UI):
     def checkNumPoints(self):
         self.numPoints = pm.intFieldGrp('shField', q=True, value1=True)
         if self.numPoints >= 10:
-            print "Shards %d" % (self.numPoints)
+            print "Shards %d" % self.numPoints
         else:
             print "ALERT"
 
     # cProfile.run('ov.selInfCheck()')
     def selInfCheck(self):
-        if fr.checkPolyObj(self.sel) == True:
+        if fr.checkPolyObj(self.sel):
             ov.voroShatter(self.sel, self.numPoints)
         else:
             pm.text('textF', q=True, edit=True, vis=True)
@@ -379,10 +382,10 @@ class Ou_Voronoi(UI):
         print "Shattering of %d chunks..." % (self.numPoints)
 
         for voroFrom in voroPoints:
-            if self.scanFunc == True:
+            if self.scanFunc:
                 pm.progressBar('prgs', q=True, endProgress=True)
                 break
-            step = step + 1
+            step += 1
             pm.progressBar('prgs', edit=True, progress=step, vis=True, maxValue=self.numPoints)
 
             # Duplicate the object to cut as shatters
