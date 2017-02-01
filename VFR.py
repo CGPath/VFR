@@ -117,7 +117,7 @@ class Common(UI):
         evalList = pm.ls(sl=True, o=True, dag=True, exactType="mesh")
         connList = pm.listConnections(evalList, type='shadingEngine')
         res = []
-        [res.append('inMat_' + mainObj + SG) for nstr in connList]
+        [res.append('inMat_' + mainObj + SG) for i in connList]
         pss = pm.filterExpand(res, sm=34, ex=True)
         pm.select(pss, r=True)
         pm.polySetToFaceNormal(setUserNormal=True)
@@ -125,7 +125,7 @@ class Common(UI):
 
 
 # SoUP
-class SouP_Voronoi(UI):
+class SouPVoronoi(UI):
     def connectAtr(self):
         pm.makeIdentity(apply=True, t=True, r=True, s=True, n=1, pn=True)
         pm.refresh()
@@ -185,7 +185,7 @@ class SouP_Voronoi(UI):
 
         pm.delete(self.selArr[0] + '_scatter')
         pm.delete(ch=True)
-    
+
     @staticmethod
     def checkPolyObj(selObj):  # check for polygon object
         selObj = pm.ls(sl=True)
@@ -327,7 +327,7 @@ class SouP_Voronoi(UI):
         print "work time %.2f sec. " % (totalTime)
 
 
-class Ou_Voronoi(UI):
+class OuVoronoi(UI):
     @staticmethod
     def chBxTrVtxC(obj, shMesh):
         if pm.checkBox('chBxC', q=True, v=True):
@@ -347,7 +347,6 @@ class Ou_Voronoi(UI):
         else:
             print "ALERT"
 
-    # cProfile.run('ov.selInfCheck()')
     def selInfCheck(self):
         if fr.checkPolyObj(self.sel):
             ov.voroShatter(self.sel, self.numPoints)
@@ -379,7 +378,7 @@ class Ou_Voronoi(UI):
         pm.button('shButt', e=True, vis=False)
         pm.button('clButt', e=True, vis=True)
         self.scanFunc = False
-        print "Shattering of %d chunks..." % (self.numPoints)
+        print "Shattering of %d chunks..." % self.numPoints
 
         for voroFrom in voroPoints:
             if self.scanFunc:
@@ -426,6 +425,6 @@ class Ou_Voronoi(UI):
         print "Shattering of %d chunks completed in %.2f sec" % (step, totalTime)
 
 
-fr = SouP_Voronoi()
-ov = Ou_Voronoi()
-cmm = Common()
+fr = SouPVoronoi()
+ov = OuVoronoi()
+cmm = Common() 
