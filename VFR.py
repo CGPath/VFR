@@ -1,6 +1,5 @@
 import maya.cmds as cmds
 import random
-import maya.api.OpenMaya as OpenMaya
 import pymel.core as pm
 import maya.mel as mel
 
@@ -38,7 +37,8 @@ class UI:
         pm.intFieldGrp('fieldGrp', cal=(1, 'center'), v1=25, vis=True)
         pm.text(label="test...", vis=False)
         pm.setParent('..')
-        pm.separator(w=380, h=10, st="in")
+        pm.separator(w=380, h=2, st="none")
+        pm.separator(w=380, h=5, st="in")
         pm.button('shatterButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c='Common.startCheckSouP()', h=30)
 
         pm.text('textA', label="Select single polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
@@ -261,15 +261,10 @@ class SouPVoronoi:
 
     @staticmethod
     def nNormalCheck(obj):
-        shape = obj.getShape()
         faces = pm.MeshFace(obj)
-        sel = OpenMaya.MSelectionList()
-        sel.add(str(shape))
-        dag_path = sel.getDagPath(0)
-        mesh = OpenMaya.MFnMesh(dag_path)
-        nxNormal = [mesh.getPolygonNormal(i) for i in range(len(faces))]
-        nNormal = [[round(x, 2) for x in i] for i in nxNormal]
         numNormal = [i for i in range(len(faces))]
+        nxNormal = [i.getNormal() for i in faces]
+        nNormal = [[round(x, 2) for x in i] for i in nxNormal]
         return nNormal, numNormal
 
     def chBxCfoo(self):
@@ -289,7 +284,6 @@ class SouPVoronoi:
         setA = SouPVoronoi.nNormalCheck(selObj)
         self.scanFunc = False
         sMat = Common.surfaceMaterial(selObj, 0.78, 0.78, 0.78, 'outMat_')
-        # shdr, sMat = pm.createSurfaceShader('lambert', name = 'outMat_' + self.selArr[0])
 
         pm.select(self.arrShards)
         selB = pm.ls(sl=True)
@@ -424,4 +418,4 @@ class OuVoronoi:
         totalTime = pm.timerX(startTime=start)
         print "Shattering of %d chunks completed in %.2f sec" % (step, totalTime)
 UI()
-ov = OuVoronoi()
+ov = OuVoronoi() 
