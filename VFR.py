@@ -13,7 +13,7 @@ class UI:
         if pm.window('mainWindow', exists=True):
             pm.deleteUI('mainWindow', window=True)
         pm.window('mainWindow')
-        pm.window('mainWindow', edit=True, width=392, height=230, exists=False,
+        pm.window('mainWindow', edit=True, width=392, height=237, exists=False,
                   mxb=False, s=False, rtf=True, mb=True, mbv=True, title="Voronoi shatter")
         pm.showWindow('mainWindow')
 
@@ -21,16 +21,14 @@ class UI:
         pm.tabLayout()
         pm.formLayout('FAST shatter (SouP)')
         pm.frameLayout(label="SouP Voronoi shattering")
-        pm.columnLayout(adjustableColumn=True, columnAlign="center", columnAttach=('both', 2))
+        pm.columnLayout('cl1', adjustableColumn=True, columnAlign="center", columnAttach=('both', 2))
         pm.separator(w=380, h=10, st="in")
         pm.checkBox('chBxA', label="Create inside-outside shader (experemental)")
         pm.checkBox('chBxB', label="Transfer vertexNormal from object")
-        pm.rowLayout('rowD', nc=2, cw2=(145, 60), adj=1, columnAlign=(1, "left"), columnAttach2=("right", "both"),
-                     vis=True)
         pm.checkBox('chBxD', label="Remember main object: - - - ", vis=True)
-        pm.button('buttD', w=30, h=15, label='reset', c='fr.resetButtD()', vis=True)
-        pm.setParent('..')
-        pm.separator(w=380, h=10, st="in")
+        pm.separator(w=380, h=5, st="in")
+        pm.button('buttD', w=30, h=15, label='reset', c='fr.resetButtD()', vis=True)     
+        pm.separator(w=380, h=5, st="in")
         pm.rowLayout('rowL', nc=3, cw3=(145, 50, 120), adj=2, columnAlign=(2, "center"),
                      columnAttach3=("both", "both", "both"), vis=True)
         pm.text(label="shards amount:")
@@ -116,13 +114,11 @@ class Common(UI):
         pm.delete(evalList, ch=True)
         evalList = pm.ls(sl=True, o=True, dag=True, exactType="mesh")
         connList = pm.listConnections(evalList, type='shadingEngine')
-        res = []
-        [res.append('inMat_' + mainObj + SG) for i in connList]
+        res = [('inMat_' + mainObj + SG) for i in connList]
         pss = pm.filterExpand(res, sm=34, ex=True)
         pm.select(pss, r=True)
         pm.polySetToFaceNormal(setUserNormal=True)
         pm.select(cl=True)
-
 
     @staticmethod
     def startCheckSouP():  # start func
@@ -152,7 +148,6 @@ class SouPVoronoi:
         pm.refresh()
 
         pm.intFieldGrp('fieldGrp', e=True, m=True, en=False)
-        pm.rowLayout('rowD', e=True, vis=True)
         pm.checkBox('chBxD', e=True, vis=True, label="Remember main object: %s" % (UI.selBuffer[0]))
         pm.separator('sepB1', e=True, vis=True)
         pm.button('cancelButtB', e=True, vis=True)
@@ -213,6 +208,8 @@ class SouPVoronoi:
     def resetButtD(self):
         del UI.selBuffer[:]
         pm.checkBox('chBxD', e=True, vis=True, v=False, label="Remember main object: - - - ")
+        pm.checkBox('chBxA', e=True, v=False)
+        pm.checkBox('chBxB', e=True, v=False)
 
     def createShards(self):
         pm.text('textC', edit=True, vis=False)
@@ -269,13 +266,13 @@ class SouPVoronoi:
 
     def chBxCfoo(self):
         if pm.checkBox('chBxD', q=True, v=True):
-            sels = UI.selBuffer[0]
+            xSel = UI.selBuffer[0]
         else:
-            sels = self.selArr[0]
-        return sels
+            xSel = self.selArr[0]
+        return xSel
 
     def setInsMat(self):  # apply outside shader
-        start = pm.timerX()
+        #start = pm.timerX()
         pm.button('crChButt', e=True, vis=False)
         pm.button('cancelButt', e=True, vis=True)
 
@@ -312,8 +309,8 @@ class SouPVoronoi:
         pm.button('crChButt', e=True, vis=False)
         pm.button('cancelButt', e=True, vis=False)
 
-        totalTime = pm.timerX(startTime=start)
-        print "work time %.2f sec. " % (totalTime)
+        #totalTime = pm.timerX(startTime=start)
+        #print "work time %.2f sec. " % (totalTime)
 
 
 class OuVoronoi:
