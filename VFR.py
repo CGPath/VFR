@@ -13,79 +13,80 @@ class UI:
         if pm.window('mainWindow', exists=True):
             pm.deleteUI('mainWindow', window=True)
         pm.window('mainWindow')
-        pm.window('mainWindow', edit=True, width=392, height=237, exists=False,
+        pm.window('mainWindow', edit=True, width=364, height=237, exists=False,
                   mxb=False, s=False, rtf=True, mb=True, mbv=True, title="Voronoi shatter")
         pm.showWindow('mainWindow')
 
         # layout A
         pm.tabLayout()
         pm.formLayout('FAST shatter (SouP)')
-        pm.frameLayout(label="SouP Voronoi shattering")
+        pm.frameLayout(label="SouP Voronoi shattering", w=358)
         pm.columnLayout('cl1', adjustableColumn=True, columnAlign="center", columnAttach=('both', 2))
-        pm.separator(w=380, h=10, st="in")
+        pm.separator(h=10, st="in")
         pm.checkBox('chBxA', label="Create inside-outside shader (experemental)")
         pm.checkBox('chBxB', label="Transfer vertexNormal from object")
         pm.checkBox('chBxD', label="Remember main object: - - - ", vis=True)
-        pm.separator(w=380, h=5, st="in")
-        pm.button('buttD', w=30, h=15, label='reset', c='fr.resetButtD()', vis=True)     
-        pm.separator(w=380, h=5, st="in")
-        pm.rowLayout('rowL', nc=3, cw3=(145, 50, 120), adj=2, columnAlign=(2, "center"),
+        pm.separator(h=5, st="in")
+        pm.button('buttD', w=30, h=15, label='reset', c='vfr.fr.resetButtD()', vis=True)
+        pm.separator(h=5, st="in")
+        pm.rowLayout('rowL', nc=3, cw3=(132, 50, 100), adj=2, columnAlign=(2, "center"),
                      columnAttach3=("both", "both", "both"), vis=True)
         pm.text(label="shards amount:")
         pm.intFieldGrp('fieldGrp', cal=(1, 'center'), v1=25, vis=True)
         pm.text(label="test...", vis=False)
         pm.setParent('..')
-        pm.separator(w=380, h=2, st="none")
-        pm.separator(w=380, h=5, st="in")
-        pm.button('shatterButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c='Common.startCheckSouP()', h=30)
+        pm.separator(h=2, st="none")
+        pm.separator(h=5, st="in")
+        pm.button('shatterButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c='vfr.Common.startCheckSouP()', h=30)
 
         pm.text('textA', label="Select single polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
-        pm.separator(w=380, h=5, st="in")
+        pm.separator(h=5, st="in")
 
-        pm.button('crChButt', label="CREATE SHARDS", c='fr.sepsShard()', h=30, vis=False, bgc=(0.0, 0.5, 0.0))
+        pm.button('crChButt', label="CREATE SHARDS", c='vfr.fr.sepsShard()', h=30, vis=False, bgc=(0.0, 0.5, 0.0))
         pm.text('textC', vis=False, bgc=(1.0, 0.3, 0.0))
         pm.button('cancelButt', label="CANCEL", bgc=(1.0, 0.4, 0.0),
-                  c="fr.clCommandA('crChButt', 'cancelButt', 'prgsA')", vis=False, h=30)
-        pm.separator('sepB1', w=380, h=5, st="in", vis=False)
-        pm.button('cancelButtB', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="fr.clCommandB()", vis=False, h=30)
-        pm.separator('sepB2', w=380, h=5, st="in", vis=False)
-        pm.separator(w=380, h=10, st="none")
-        pm.progressBar('prgsA', width=240, isInterruptable=True, vis=False)
-        pm.separator(w=380, h=10, st="none")
+                  c="vfr.fr.clCommandA('crChButt', 'cancelButt', 'prgsA')", vis=False, h=30)
+        pm.separator('sepB1', h=5, st="in", vis=False)
+        pm.button('cancelButtB', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="vfr.fr.clCommandB()", vis=False, h=30)
+        pm.separator('sepB2', h=5, st="in", vis=False)
+        pm.separator(h=10, st="none")
+        pm.progressBar('prgsA',isInterruptable=True, vis=False)
+        pm.separator(h=10, st="none")
         pm.setParent('..')
         pm.setParent('..')
         pm.setParent('..')
 
         # layout B
-        pm.formLayout('SLOW shatter (oceanqiu)')
-        pm.frameLayout(label="Voronoi shattering by Ocean Tian Qiu ")
+        pm.formLayout('SLOW shatter (VFR)')
+        pm.frameLayout(label="Voronoi shattering scrypt", w=358)
         pm.columnLayout(adjustableColumn=True, columnAlign="center", columnAttach=('both', 2))
-        pm.separator(w=380, h=10, st="in")
-        pm.separator(w=380, h=2, st="none")
+        pm.separator(h=5, st="in")
+        pm.separator(h=2, st="none")
         pm.checkBox('chBxC', label="Transfer vertexNormal from object")
-        pm.separator(w=380, h=2, st="none")
-        pm.separator(w=380, h=10, st="in")
-        pm.intFieldGrp('shField', label="number of pieces:", v1=25, cal=(1, 'center'), vis=True,
-                       cc='ov.checkNumPoints()')
-        pm.separator(w=380, h=10, st="in")
-        pm.button('shButt', label="SHATTER", bgc=(0.0, 0.5, 0.0), c='ov.selInfCheck()', vis=True, h=30)
+        pm.separator(h=2, st="none")
+        pm.separator(h=5, st="in")
+        pm.intFieldGrp('shField', label="number of pieces:",
+                        v1=25, cw2=(130, 90), ct2=("both", "both"), co2=(15, 5),  vis=True)
+        pm.separator(h=2, st="none")
+        pm.separator(h=5, st="in")
+        pm.button('shButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c='vfr.ov.selInfCheck()', vis=True, h=30)
         pm.text('textF', label="Select polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
-        pm.button('clButt', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="ov.clCommand('shButt', 'clButt', 'prgs')",
+        pm.button('clButt', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="vfr.ov.clCommand('shButt', 'clButt', 'prgs')",
                   vis=False, h=30)
-        pm.separator(w=380, h=5, st="in")
-        pm.separator(w=380, h=20, st="none")
-        pm.progressBar('prgs', width=240, isInterruptable=True, progress=0, vis=False)
+        pm.separator(h=5, st="in")
+        pm.separator(h=5, st="none")
+        pm.progressBar('prgs', isInterruptable=True, progress=0, vis=False)
         pm.setParent('..')
         pm.setParent('..')
         pm.setParent('..')
 
         # layout C
         pm.formLayout('BONUS command')
-        pm.frameLayout(label="Bonus command")
+        pm.frameLayout(label="Bonus command", w=358)
         pm.columnLayout(adjustableColumn=True, columnAlign="center", columnAttach=('both', 2))
-        pm.separator(w=380, h=75, st="none")
+        pm.separator(h=75, st="none")
         pm.text('COMING SOON...')
-        pm.separator(w=380, h=10, st="none")
+        pm.separator(h=10, st="none")
         pm.setParent('..')
         pm.setParent('..')
         pm.setParent('..')
@@ -95,7 +96,7 @@ class UI:
 class Common(UI):
 
     @staticmethod
-    def surfaceMaterial(sel, R, G, B, nameMat):
+    def shaderInit(sel, R, G, B, nameMat):
         mel.eval('MLdeleteUnused;')
         name = (nameMat + sel)
         if cmds.objExists(name):
@@ -126,8 +127,7 @@ class Common(UI):
         polyChk = pm.filterExpand(selObj, ex=True, sm=12)
         if pm.nodeType(polyChk) == 'transform':
             UI.selBuffer.append(selObj)
-            global fr
-            fr = SouPVoronoi()
+            fr.start()
         else:
             pm.text('textA', e=True, vis=True)
 
@@ -135,6 +135,9 @@ class Common(UI):
 # SoUP
 class SouPVoronoi:
     def __init__(self):
+        self.scanFunc = True
+
+    def start(self):
         pm.makeIdentity(apply=True, t=True, r=True, s=True, n=1, pn=True)
         self.scanFunc = True
         self.selArr = pm.ls(sl=True)
@@ -144,7 +147,7 @@ class SouPVoronoi:
         self.scatterNode = pm.createNode('scatter', name=(self.selArr[0] + '_scatterShape'))
         self.shapeArr = self.selArr[0].getShape()
         self.arrShards = []
-        SouPVoronoi.chBxCfoo(self)
+        self.chBxCfoo()
         pm.refresh()
 
         pm.intFieldGrp('fieldGrp', e=True, m=True, en=False)
@@ -171,7 +174,7 @@ class SouPVoronoi:
         pm.connectAttr((self.shatterNode + ".outGeometry"), (self.mesh + ".inMesh"))
         # refresh(update) before create shards
         pm.refresh()
-        SouPVoronoi.createShards(self)
+        self.createShards()
 
     def clCommandA(self, crButton, clButton, prgBar):  # cancel command A
         if not self.scanFunc:
@@ -189,7 +192,6 @@ class SouPVoronoi:
         pm.button('crChButt', e=True, vis=False)
         pm.rowLayout('rowL', e=True, vis=True)
         pm.text('textC', e=True, vis=False)
-        pm.rowLayout('rowD', e=True, vis=True)
         pm.intFieldGrp('fieldGrp', e=True, m=True, en=True)
         pm.checkBox('chBxD', e=True, vis=True, v=False, label="Remember main object: - - - ")
         del UI.selBuffer[:]
@@ -199,13 +201,15 @@ class SouPVoronoi:
 
     def chBxOutMat(self):  # check box
         if pm.checkBox('chBxA', q=True, v=True):
-            SouPVoronoi.setInsMat(self)
+            self.setInsMat()
 
-    def chBxTrVtx(self, obj, shMesh):
+    @staticmethod
+    def chBxTrVtx(obj, shMesh):
         if pm.checkBox('chBxB', q=True, v=True):
             pm.transferAttributes(obj, shMesh, transferNormals=1, sampleSpace=1)
 
-    def resetButtD(self):
+    @staticmethod
+    def resetButtD():
         del UI.selBuffer[:]
         pm.checkBox('chBxD', e=True, vis=True, v=False, label="Remember main object: - - - ")
         pm.checkBox('chBxA', e=True, v=False)
@@ -218,10 +222,10 @@ class SouPVoronoi:
         pm.setAttr((self.selArr[0] + ".visibility"), 0)
         pm.select(self.selArr[0] + '_mesh', r=True)
         pss = pm.ls(sl=True)
-        inSM = Common.surfaceMaterial(pss[0], 0.461, 1.0, 0.0, 'inMat_')
+        inSM = Common.shaderInit(pss[0], 0.461, 1.0, 0.0, 'inMat_')
         pm.select(self.mesh)
         pm.hyperShade(assign=inSM)
-        SouPVoronoi.chBxTrVtx(self, self.selArr[0], self.mesh)
+        self.chBxTrVtx(self.selArr[0], self.mesh)
         pm.cycleCheck(e=False)
 
     def setIntVolume(self):
@@ -249,7 +253,7 @@ class SouPVoronoi:
                 i += 1
             pm.rename((self.selArr[0] + '_mesh'), (self.selArr[0] + '_shards'))
             pm.refresh()
-            SouPVoronoi.chBxOutMat(self)
+            self.chBxOutMat()
             #
             pm.button('crChButt', e=True, vis=False)
             pm.button('shatterButt', e=True, vis=True)
@@ -272,7 +276,6 @@ class SouPVoronoi:
         return xSel
 
     def setInsMat(self):  # apply outside shader
-        #start = pm.timerX()
         pm.button('crChButt', e=True, vis=False)
         pm.button('cancelButt', e=True, vis=True)
 
@@ -280,7 +283,7 @@ class SouPVoronoi:
         pm.select(selObj)
         setA = SouPVoronoi.nNormalCheck(selObj)
         self.scanFunc = False
-        sMat = Common.surfaceMaterial(selObj, 0.78, 0.78, 0.78, 'outMat_')
+        sMat = Common.shaderInit(selObj, 0.78, 0.78, 0.78, 'outMat_')
 
         pm.select(self.arrShards)
         selB = pm.ls(sl=True)
@@ -299,7 +302,6 @@ class SouPVoronoi:
                     if setA[0][i] == setB[0][x]:
                         sFaces = (shard + '.f[' + str(x) + ']')
                         cmds.sets(sFaces, forceElement=(sMat + 'SG'), e=True)
-
                         if self.scanFunc:
                             pm.progressBar('prgsA', q=True, endProgress=True)
                             break
@@ -309,13 +311,10 @@ class SouPVoronoi:
         pm.button('crChButt', e=True, vis=False)
         pm.button('cancelButt', e=True, vis=False)
 
-        #totalTime = pm.timerX(startTime=start)
-        #print "work time %.2f sec. " % (totalTime)
-
 
 class OuVoronoi:
-    numPoints = 25
-    scanFunc = True
+    def __init__(self):
+        self.scanFunc = True
 
     @staticmethod
     def chBxTrVtxC(obj, shMesh):
@@ -329,39 +328,45 @@ class OuVoronoi:
         pm.button(clButton, q=True, e=True, vis=False)
         pm.progressBar(prgBar, edit=True, vis=False)
 
-    def checkNumPoints(self):
-        self.numPoints = pm.intFieldGrp('shField', q=True, value1=True)
-        if self.numPoints >= 10:
-            print "Shards %d" % self.numPoints
-        else:
-            print "ALERT"
-
     def selInfCheck(self):
         selObj = pm.ls(sl=True)[0]
         polyChk = pm.filterExpand(selObj, ex=True, sm=12)
         if pm.nodeType(polyChk) == 'transform':
-            ov.voroShatter(self.numPoints)
+            self.vShatter()
         else:
             pm.text('textF', q=True, edit=True, vis=True)
 
-    def voroShatter(self, num):
-        start = pm.timerX()
+    @staticmethod
+    def inMat(workingObj, surfaceMat):
+        oriFaces = cmds.polyEvaluate(workingObj, face=True)
+        cmds.polyCloseBorder(workingObj, ch=True)
+        aftFaces = cmds.polyEvaluate(workingObj, face=True)
+        newFaces = aftFaces - oriFaces
+        cutFaces = ('%s.f[ %d ]' % (workingObj[0], (aftFaces + newFaces - 1)))
+        cmds.sets(cutFaces, forceElement=(surfaceMat + 'SG'), e=True)
+
+    @staticmethod
+    def creator(vOut, vIn, shardObj):
+        target = [(trg1 - trg2) for (trg1, trg2) in zip(vOut, vIn)]
+        trgetCenter = [(trg1 + trg2) / 2 for (trg1, trg2) in zip(vIn, vOut)]
+        targetAngle = cmds.angleBetween(euler=True, v1=[0, 0, 1], v2=target)
+        cmds.polyCut(shardObj, df=True, cutPlaneCenter=trgetCenter, cutPlaneRotate=targetAngle)
+
+    def vShatter(self):
         pm.text('textF', edit=True, vis=False)
-        pm.intFieldGrp('shField', edit=True, cal=(1, 'center'), cc='ov.checkNumPoints()', vis=True)
+        num = pm.intFieldGrp('shField', q=True, value1=True)
 
         sel = cmds.ls(sl=True)
-        surfaceMat = Common.surfaceMaterial(sel[0], 1.0, 0.9, 0.0, 'inMat_')
-        bbPoints = cmds.exactWorldBoundingBox(sel[0])
+        surfaceMat = Common.shaderInit(sel[0], 1.0, 0.9, 0.0, 'inMat_')
+        boxPts = cmds.exactWorldBoundingBox(sel[0])
 
-        numPoints = num
-
-        voroX = [random.uniform(bbPoints[0], bbPoints[3]) for i in range(numPoints)]
-        voroY = [random.uniform(bbPoints[1], bbPoints[4]) for i in range(numPoints)]
-        voroZ = [random.uniform(bbPoints[2], bbPoints[5]) for i in range(numPoints)]
-        voroPoints = zip(voroX, voroY, voroZ)
+        vX = [random.uniform(boxPts[0], boxPts[3]) for i in range(num)]
+        vY = [random.uniform(boxPts[1], boxPts[4]) for i in range(num)]
+        vZ = [random.uniform(boxPts[2], boxPts[5]) for i in range(num)]
+        bbPts = zip(vX, vY, vZ)
 
         cmds.setAttr(sel[0] + '.visibility', 0)
-        chunksGrp = cmds.group(em=True, name=sel[0] + '_chunks')
+        shardGroup = cmds.group(em=True, name=sel[0] + '_shards')
 
         cmds.undoInfo(state=False)
         cmds.setAttr(sel[0] + '.visibility', 0)
@@ -369,50 +374,38 @@ class OuVoronoi:
         pm.button('shButt', e=True, vis=False)
         pm.button('clButt', e=True, vis=True)
         self.scanFunc = False
-        print "Shattering of %d chunks..." % numPoints
+        print "Shattering of %d chunks..." % num
 
-        for voroFrom in voroPoints:
+        for vOut in bbPts:
             if self.scanFunc:
                 pm.progressBar('prgs', q=True, endProgress=True)
                 break
             step += 1
-            pm.progressBar('prgs', edit=True, progress=step, vis=True, maxValue=numPoints)
-
-            # Duplicate the object to cut as shatters
-            workingObj = cmds.duplicate(sel[0])
-            cmds.setAttr(workingObj[0] + '.visibility', 1)
-            cmds.parent(workingObj[0], chunksGrp)
-
-            for voroTo in voroPoints:
-                if voroFrom != voroTo:
-                    # Calculate the Perpendicular Bisector Plane
-                    aim = [(vec1 - vec2) for (vec1, vec2) in zip(voroFrom, voroTo)]
-                    voroCenter = [(vec1 + vec2) / 2 for (vec1, vec2) in zip(voroTo, voroFrom)]
-                    planeAngle = cmds.angleBetween(euler=True, v1=[0, 0, 1], v2=aim)
-                    # Bullet Shatter
-                    cmds.polyCut(workingObj, df=True, cutPlaneCenter=voroCenter, cutPlaneRotate=planeAngle)
-
-                    # Applying the material to the cut faces
-                    oriFaces = cmds.polyEvaluate(workingObj, face=True)
-                    cmds.polyCloseBorder(workingObj, ch=True)
-                    aftFaces = cmds.polyEvaluate(workingObj, face=True)
-                    newFaces = aftFaces - oriFaces
-
-                    cutFaces = ('%s.f[ %d ]' % (workingObj[0], (aftFaces + newFaces - 1)))
-                    cmds.sets(cutFaces, forceElement=(surfaceMat + 'SG'), e=True)
-            cmds.xform(workingObj, cp=True)
-            pm.rename(workingObj[0], (sel[0] + '_chunk_' + str(step)))
+            pm.progressBar('prgs', edit=True, progress=step, vis=True, maxValue=num)
+            shardObj = cmds.duplicate(sel[0])
+            cmds.setAttr(shardObj[0] + '.visibility', 1)
+            cmds.parent(shardObj[0], shardGroup)
+            for vIn in bbPts:
+                if vOut != vIn:
+                    self.creator(vOut, vIn, shardObj)
+                    self.inMat(shardObj, surfaceMat)
+            cmds.xform(shardObj, cp=True)
+            pm.rename(shardObj[0], (sel[0] + '_shard_' + str(step)))
             pm.refresh(cv=True)
-        pm.select(chunksGrp)
-        ov.chBxTrVtxC(sel[0], chunksGrp)
-        Common.fixInNormal(chunksGrp, sel[0], 'SG')
+        pm.select(shardGroup)
+        self.chBxTrVtxC(sel[0], shardGroup)
+        Common.fixInNormal(shardGroup, sel[0], 'SG')
 
-        cmds.xform(chunksGrp, cp=True)
+        cmds.xform(shardGroup, cp=True)
         pm.progressBar('prgs', edit=True, vis=False)
         pm.button('shButt', e=True, vis=True)
         pm.button('clButt', e=True, vis=False)
         cmds.undoInfo(state=True)
-        totalTime = pm.timerX(startTime=start)
-        print "Shattering of %d chunks completed in %.2f sec" % (step, totalTime)
-UI()
-ov = OuVoronoi() 
+
+
+def initUI():
+    UI()
+
+ov = OuVoronoi()
+fr = SouPVoronoi()
+Common = Common()
