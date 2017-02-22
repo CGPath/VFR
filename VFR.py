@@ -2,6 +2,9 @@ import maya.cmds as cmds
 import random
 import pymel.core as pm
 import maya.mel as mel
+import maya.api.OpenMaya as OpenMaya
+import collections
+import itertools
 
 
 class UI:
@@ -98,15 +101,15 @@ class Common(UI):
     @staticmethod
     def shaderInit(sel, R, G, B, nameMat):
         mel.eval('MLdeleteUnused;')
-        name = (nameMat + sel)
-        if cmds.objExists(name):
+        _name = (nameMat + sel)
+        if cmds.objExists(_name):
             print 'WARRING! Duplicate material or shader group... clearing'
         else:
-            cmds.shadingNode('lambert', asShader=True, name=name)
-            cmds.sets(renderable=True, noSurfaceShader=True, empty=True, name=(name + 'SG'))
-            cmds.connectAttr((name + '.outColor'), (name + 'SG.surfaceShader'), force=True)
-            cmds.setAttr((name + '.color'), R, G, B, type="double3")
-        return name
+            cmds.shadingNode('lambert', asShader=True, name=_name)
+            cmds.sets(renderable=True, noSurfaceShader=True, empty=True, name=(_name + 'SG'))
+            cmds.connectAttr((_name + '.outColor'), (_name + 'SG.surfaceShader'), force=True)
+            cmds.setAttr((_name + '.color'), R, G, B, type="double3")
+        return _name
 
     @staticmethod
     def fixInNormal(obj, mainObj, SG):
@@ -317,6 +320,16 @@ class OuVoronoi:
         self.scanFunc = True
 
     @staticmethod
+    def material(obj, R, G, B):
+        _name = obj + '_shardMaterial'
+        if not cmds.objExists(_name):
+            cmds.shadingNode('lambert', asShader=True, name=_name)
+            cmds.sets(r=True, nss=True, em=True, name=_name + 'SG')
+            cmds.connectAttr((_name + '.outColor'), (_name + 'SG.surfaceShader'), force=True)
+            cmds.setAttr((_name + '.color'), R, G, B, type="double3")
+        return _name
+
+    @staticmethod
     def chBxTrVtxC(obj, shMesh):
         if pm.checkBox('chBxC', q=True, v=True):
             pm.transferAttributes(obj, shMesh, transferNormals=1, sampleSpace=1)
@@ -329,41 +342,143 @@ class OuVoronoi:
         pm.progressBar(prgBar, edit=True, vis=False)
 
     def selInfCheck(self):
-        selObj = pm.ls(sl=True)[0]
-        polyChk = pm.filterExpand(selObj, ex=True, sm=12)
+        selObj = cmds.ls(sl=True)
+        polyChk = cmds.filterExpand(selObj, ex=True, sm=12)
         if pm.nodeType(polyChk) == 'transform':
             self.vShatter()
         else:
             pm.text('textF', q=True, edit=True, vis=True)
 
     @staticmethod
-    def inMat(workingObj, surfaceMat):
-        oriFaces = cmds.polyEvaluate(workingObj, face=True)
-        cmds.polyCloseBorder(workingObj, ch=True)
-        aftFaces = cmds.polyEvaluate(workingObj, face=True)
-        newFaces = aftFaces - oriFaces
-        cutFaces = ('%s.f[ %d ]' % (workingObj[0], (aftFaces + newFaces - 1)))
-        cmds.sets(cutFaces, forceElement=(surfaceMat + 'SG'), e=True)
+    def fill_hole_plus(obj):
+        def get_loops(MN):
+            """ Returns the tuple of closed loops. Loops are represented as ordered lists of nodes """
+            network = {}
+            for a, b in MN:
+                network[a].add(b) if a in network else network.update({a: {b}})
+                network[b].add(a) if b in network else network.update({b: {a}})
+            chain = collections.OrderedDict()
+
+            def __loop_iterator(node):
+                if node not in chain:
+                    chain[node] = None
+                    next = network[node]
+                    while next:
+                        n = next.pop()
+                        network[n].remove(node)
+                        for x in __loop_iterator(n):
+                            yield x
+                    chain.popitem()
+                else:
+                    yield tuple(itertools.chain(itertools.takewhile(lambda x: x is not node, reversed(chain)), (node,)))
+
+            # 'for' is needed for just to run from any first available node as n
+            for n in network:
+                return tuple(__loop_iterator(n))
+
+        nSelList = OpenMaya.MGlobal.getActiveSelectionList()
+        itrMesh = nSelList.getDependNode(0)
+        nDagPath = nSelList.getDagPath(0)
+        nShape = nDagPath.getPath()
+        sMesh = OpenMaya.MFnMesh(nShape)
+
+        itrVtx = OpenMaya.MItMeshEdge(itrMesh)
+        nEdge = []
+        while not itrVtx.isDone():
+            if itrVtx.numConnectedFaces() == 1:
+                nEdge.append(itrVtx.index())
+            itrVtx.next()
+
+        if nEdge:
+            edgeLoop = cmds.polySelect(obj, eb=nEdge[0], ns=True)
+            pops = edgeLoop.pop(len(edgeLoop) - 1)
+            sVert = [i for i in [sMesh.getEdgeVertices(i) for i in edgeLoop]]
+
+            vtxSet = get_loops(sVert)
+            sVtx = []
+            for i in vtxSet[0]:
+                if i not in sVtx:
+                    sVtx.append(i)
+
+            vtxPoint = [sMesh.getPoint(i) for i in sVtx]
+            mergeVertices = True
+            pointTolerance = 0.0000000001
+            sMesh.checkSamePointTwice = True
+            sMesh.addPolygon(vtxPoint, mergeVertices, pointTolerance)
+            cmds.polyNormal(obj, normalMode=2, userNormalMode=False, ch=False)
+
+    @staticmethod
+    def int_point_generator(num, obj):
+        cmds.select(obj)
+        sel_list = OpenMaya.MGlobal.getActiveSelectionList()
+        sel_dag = sel_list.getDagPath(0)
+        mesh_obj = OpenMaya.MFnMesh(sel_dag)
+        bbPts = mesh_obj.boundingBox
+
+        xPts = 1000
+        vX = [random.uniform(bbPts.max[0], bbPts.min[0]) for i in xrange(xPts)]
+        vY = [random.uniform(bbPts.max[1], bbPts.min[1]) for i in xrange(xPts)]
+        vZ = [random.uniform(bbPts.max[2], bbPts.min[2]) for i in xrange(xPts)]
+        vZip = zip(vX, vY, vZ)
+
+        ray_point = OpenMaya.MFloatPointArray()
+        [ray_point.append(i) for i in vZip]
+        rayDirection = OpenMaya.MFloatVector((bbPts.max[0] * 2, bbPts.max[1] * 2, bbPts.max[2] * 2))
+        space = OpenMaya.MSpace.kWorld
+        maxParam = 9999999
+        testBothDirections = False
+        hitPoints = OpenMaya.MFloatPointArray()
+
+        for raySource in ray_point:
+            x = mesh_obj.allIntersections(raySource,
+                                          rayDirection,
+                                          space,
+                                          maxParam,
+                                          testBothDirections)
+            if len(x[0]) % 2 == 1 and len(hitPoints) < num:
+                hitPoints.append(raySource)
+
+        targetPoints = [(i.x, i.y, i.z) for i in hitPoints]
+        return targetPoints
+
+    @staticmethod
+    def copyrator(shapeObj):
+        obj = cmds.listRelatives(shapeObj)
+        selection_list = OpenMaya.MSelectionList()
+        selection_list.add(obj[0])
+        shape = selection_list.getDependNode(0)
+        prt = OpenMaya.MObject.kNullObj
+        mesh_fn = OpenMaya.MFnMesh()
+        mesh_fn.copy(shape, prt)
+        _name = cmds.rename('polySurface1', shapeObj[0] + '_copy')
+        return _name
+
+    def inMat(self, workingObj, surfaceMat):
+        aFaces = cmds.polyEvaluate(workingObj, face=True)
+
+        self.fill_hole_plus(workingObj)
+
+        bFaces = cmds.polyEvaluate(workingObj, face=True)
+        newFaces = bFaces - aFaces
+        cFaces = ('%s.f[ %d ]' % (workingObj, (bFaces + newFaces - 1)))
+        cmds.sets(cFaces, forceElement=(surfaceMat + 'SG'), e=True)
 
     @staticmethod
     def creator(vOut, vIn, shardObj):
         target = [(trg1 - trg2) for (trg1, trg2) in zip(vOut, vIn)]
         trgetCenter = [(trg1 + trg2) / 2 for (trg1, trg2) in zip(vIn, vOut)]
-        targetAngle = cmds.angleBetween(euler=True, v1=[0, 0, 1], v2=target)
-        cmds.polyCut(shardObj, df=True, cutPlaneCenter=trgetCenter, cutPlaneRotate=targetAngle)
+        targetAngle = cmds.angleBetween(euler=True, v1=[0, 0, 1], v2=target, ch=False)
+        cmds.polyCut(shardObj, df=True, cutPlaneCenter=trgetCenter, cutPlaneRotate=targetAngle, ch=False)
 
     def vShatter(self):
         pm.text('textF', edit=True, vis=False)
         num = pm.intFieldGrp('shField', q=True, value1=True)
 
         sel = cmds.ls(sl=True)
-        surfaceMat = Common.shaderInit(sel[0], 1.0, 0.9, 0.0, 'inMat_')
-        boxPts = cmds.exactWorldBoundingBox(sel[0])
-
-        vX = [random.uniform(boxPts[0], boxPts[3]) for i in range(num)]
-        vY = [random.uniform(boxPts[1], boxPts[4]) for i in range(num)]
-        vZ = [random.uniform(boxPts[2], boxPts[5]) for i in range(num)]
-        bbPts = zip(vX, vY, vZ)
+        cmds.makeIdentity(apply=True, t=True, r=True, s=True, n=1, pn=True)
+        surfaceMat = Common.shaderInit(sel[0], 0.461, 1.0, 0.0, 'inMat_')
+        outMat = self.material(sel[0], 0.78, 0.78, 0.78)
+        bbPts = self.int_point_generator(num, sel)
 
         cmds.setAttr(sel[0] + '.visibility', 0)
         shardGroup = cmds.group(em=True, name=sel[0] + '_shards')
@@ -382,15 +497,17 @@ class OuVoronoi:
                 break
             step += 1
             pm.progressBar('prgs', edit=True, progress=step, vis=True, maxValue=num)
-            shardObj = cmds.duplicate(sel[0])
-            cmds.setAttr(shardObj[0] + '.visibility', 1)
-            cmds.parent(shardObj[0], shardGroup)
+            shardObj = self.copyrator(sel)
+            cmds.sets(shardObj, forceElement=(outMat + 'SG'), e=True)
+
+            cmds.setAttr(shardObj + '.visibility', 1)
+            cmds.parent(shardObj, shardGroup)
             for vIn in bbPts:
                 if vOut != vIn:
                     self.creator(vOut, vIn, shardObj)
                     self.inMat(shardObj, surfaceMat)
             cmds.xform(shardObj, cp=True)
-            pm.rename(shardObj[0], (sel[0] + '_shard_' + str(step)))
+            pm.rename(shardObj, (sel[0] + '_shard_' + str(step)))
             pm.refresh(cv=True)
         pm.select(shardGroup)
         self.chBxTrVtxC(sel[0], shardGroup)
