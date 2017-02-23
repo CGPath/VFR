@@ -30,7 +30,7 @@ class UI:
         pm.checkBox('chBxB', label="Transfer vertexNormal from object")
         pm.checkBox('chBxD', label="Remember main object: - - - ", vis=True)
         pm.separator(h=5, st="in")
-        pm.button('buttD', w=30, h=15, label='reset', c='vfr.fr.resetButtD()', vis=True)
+        pm.button('buttD', w=30, h=15, label='reset', c=lambda x: fr.resetButtD(), vis=True)
         pm.separator(h=5, st="in")
         pm.rowLayout('rowL', nc=3, cw3=(132, 50, 100), adj=2, columnAlign=(2, "center"),
                      columnAttach3=("both", "both", "both"), vis=True)
@@ -40,17 +40,17 @@ class UI:
         pm.setParent('..')
         pm.separator(h=2, st="none")
         pm.separator(h=5, st="in")
-        pm.button('shatterButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c='vfr.Common.startCheckSouP()', h=30)
+        pm.button('shatterButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c=lambda x: Common.startCheckSouP(), h=30)
 
         pm.text('textA', label="Select single polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
         pm.separator(h=5, st="in")
 
-        pm.button('crChButt', label="CREATE SHARDS", c='vfr.fr.sepsShard()', h=30, vis=False, bgc=(0.0, 0.5, 0.0))
+        pm.button('crChButt', label="CREATE SHARDS", c=lambda x: fr.sepsShard(), h=30, vis=False, bgc=(0.0, 0.5, 0.0))
         pm.text('textC', vis=False, bgc=(1.0, 0.3, 0.0))
         pm.button('cancelButt', label="CANCEL", bgc=(1.0, 0.4, 0.0),
-                  c="vfr.fr.clCommandA('crChButt', 'cancelButt', 'prgsA')", vis=False, h=30)
+                  c=lambda x: fr.clCommandA('crChButt', 'cancelButt', 'prgsA'), vis=False, h=30)
         pm.separator('sepB1', h=5, st="in", vis=False)
-        pm.button('cancelButtB', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="vfr.fr.clCommandB()", vis=False, h=30)
+        pm.button('cancelButtB', label="CANCEL", bgc=(1.0, 0.4, 0.0), c=lambda x: fr.clCommandB(), vis=False, h=30)
         pm.separator('sepB2', h=5, st="in", vis=False)
         pm.separator(h=10, st="none")
         pm.progressBar('prgsA',isInterruptable=True, vis=False)
@@ -72,9 +72,9 @@ class UI:
                         v1=25, cw2=(130, 90), ct2=("both", "both"), co2=(15, 5),  vis=True)
         pm.separator(h=2, st="none")
         pm.separator(h=5, st="in")
-        pm.button('shButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c='vfr.ov.selInfCheck()', vis=True, h=30)
+        pm.button('shButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c=lambda x: ov.selInfCheck(), vis=True, h=30)
         pm.text('textF', label="Select polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
-        pm.button('clButt', label="CANCEL", bgc=(1.0, 0.4, 0.0), c="vfr.ov.clCommand('shButt', 'clButt', 'prgs')",
+        pm.button('clButt', label="CANCEL", bgc=(1.0, 0.4, 0.0), c=lambda x: ov.clCommand('shButt', 'clButt', 'prgs'),
                   vis=False, h=30)
         pm.separator(h=5, st="in")
         pm.separator(h=5, st="none")
@@ -136,8 +136,9 @@ class Common(UI):
 
 
 # SoUP
-class SouPVoronoi:
+class SouPVoronoi(UI):
     def __init__(self):
+        UI.__init__(self)
         self.scanFunc = True
 
     def start(self):
@@ -525,4 +526,4 @@ def initUI():
 
 ov = OuVoronoi()
 fr = SouPVoronoi()
-Common = Common()
+Common = Common() 
