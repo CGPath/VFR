@@ -17,7 +17,7 @@ class UI:
             pm.deleteUI('mainWindow', window=True)
         pm.window('mainWindow')
         pm.window('mainWindow', edit=True, width=364, height=237, exists=False,
-                  mxb=False, s=False, rtf=True, mb=True, mbv=True, title="Voronoi shatter")
+                  mxb=False, s=False, rtf=True, mb=True, mbv=True, title="vFracture v0.31")
         pm.showWindow('mainWindow')
 
         # layout A
@@ -26,8 +26,8 @@ class UI:
         pm.frameLayout(label="SouP Voronoi shattering", w=358)
         pm.columnLayout('cl1', adjustableColumn=True, columnAlign="center", columnAttach=('both', 2))
         pm.separator(h=10, st="in")
-        pm.checkBox('chBxA', label="Create inside-outside shader (experemental)")
-        pm.checkBox('chBxB', label="Transfer vertexNormal from object")
+        pm.checkBox('chBxA', label="Create inside-outside material (experemental)")
+        pm.checkBox('chBxB', label="Transfer vertexNormal from main object")
         pm.checkBox('chBxD', label="Remember main object: - - - ", vis=True)
         pm.separator(h=5, st="in")
         pm.button('buttD', w=30, h=15, label='reset', c=lambda x: fr.resetButtD(), vis=True)
@@ -65,16 +65,16 @@ class UI:
         pm.columnLayout(adjustableColumn=True, columnAlign="center", columnAttach=('both', 2))
         pm.separator(h=5, st="in")
         pm.separator(h=2, st="none")
-        pm.checkBox('chBxC', label="Transfer vertexNormal from object")
+        pm.checkBox('chBxC', label="Transfer vertexNormal from main object")
         pm.separator(h=2, st="none")
         pm.separator(h=5, st="in")
-        pm.intFieldGrp('shField', label="number of pieces:",
-                        v1=25, cw2=(130, 90), ct2=("both", "both"), co2=(15, 5),  vis=True)
+        pm.intFieldGrp('shField', label="number of pieces:", v1=25, cw2=(130, 90), ct2=("both", "both"),
+                       co2=(15, 5),  vis=True)
         pm.separator(h=2, st="none")
         pm.separator(h=5, st="in")
-        pm.button('shButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c=lambda x: ov.selInfCheck(), vis=True, h=30)
+        pm.button('shButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c=lambda x: vs.selInfCheck(), vis=True, h=30)
         pm.text('textF', label="Select polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
-        pm.button('clButt', label="CANCEL", bgc=(1.0, 0.4, 0.0), c=lambda x: ov.clCommand('shButt', 'clButt', 'prgs'),
+        pm.button('clButt', label="CANCEL", bgc=(1.0, 0.4, 0.0), c=lambda x: vs.clCommand('shButt', 'clButt', 'prgs'),
                   vis=False, h=30)
         pm.separator(h=5, st="in")
         pm.separator(h=5, st="none")
@@ -126,11 +126,12 @@ class Common(UI):
 
     @staticmethod
     def startCheckSouP():  # start func
-        selObj = pm.ls(sl=True)[0]
-        polyChk = pm.filterExpand(selObj, ex=True, sm=12)
-        if pm.nodeType(polyChk) == 'transform':
-            UI.selBuffer.append(selObj)
-            fr.start()
+        if pm.ls(sl=True):
+            selObj = pm.ls(sl=True)[0]
+            polyChk = pm.filterExpand(selObj, ex=True, sm=12)
+            if pm.nodeType(polyChk) == 'transform':
+                UI.selBuffer.append(selObj)
+                fr.start()
         else:
             pm.text('textA', e=True, vis=True)
 
@@ -226,7 +227,7 @@ class SouPVoronoi(UI):
         pm.setAttr((self.selArr[0] + ".visibility"), 0)
         pm.select(self.selArr[0] + '_mesh', r=True)
         pss = pm.ls(sl=True)
-        inSM = Common.shaderInit(pss[0], 0.461, 1.0, 0.0, 'inMat_')
+        inSM = Common.shaderInit(pss[0], 1.0, 0.583, 0.583, 'inMat_')
         pm.select(self.mesh)
         pm.hyperShade(assign=inSM)
         self.chBxTrVtx(self.selArr[0], self.mesh)
@@ -316,7 +317,7 @@ class SouPVoronoi(UI):
         pm.button('cancelButt', e=True, vis=False)
 
 
-class OuVoronoi:
+class vShatter:
     def __init__(self):
         self.scanFunc = True
 
@@ -352,31 +353,6 @@ class OuVoronoi:
 
     @staticmethod
     def fill_hole_plus(obj):
-        def get_loops(MN):
-            """ Returns the tuple of closed loops. Loops are represented as ordered lists of nodes """
-            network = {}
-            for a, b in MN:
-                network[a].add(b) if a in network else network.update({a: {b}})
-                network[b].add(a) if b in network else network.update({b: {a}})
-            chain = collections.OrderedDict()
-
-            def __loop_iterator(node):
-                if node not in chain:
-                    chain[node] = None
-                    next = network[node]
-                    while next:
-                        n = next.pop()
-                        network[n].remove(node)
-                        for x in __loop_iterator(n):
-                            yield x
-                    chain.popitem()
-                else:
-                    yield tuple(itertools.chain(itertools.takewhile(lambda x: x is not node, reversed(chain)), (node,)))
-
-            # 'for' is needed for just to run from any first available node as n
-            for n in network:
-                return tuple(__loop_iterator(n))
-
         nSelList = OpenMaya.MGlobal.getActiveSelectionList()
         itrMesh = nSelList.getDependNode(0)
         nDagPath = nSelList.getDagPath(0)
@@ -391,15 +367,18 @@ class OuVoronoi:
             itrVtx.next()
 
         if nEdge:
-            edgeLoop = cmds.polySelect(obj, eb=nEdge[0], ns=True)
-            pops = edgeLoop.pop(len(edgeLoop) - 1)
-            sVert = [i for i in [sMesh.getEdgeVertices(i) for i in edgeLoop]]
-
-            vtxSet = get_loops(sVert)
+            edges = pm.polySelect(obj, eb=nEdge[0], ns=True)
+            edges.pop(len(edges) - 1)
+            sVert = [sMesh.getEdgeVertices(i) for i in edges]
             sVtx = []
-            for i in vtxSet[0]:
-                if i not in sVtx:
-                    sVtx.append(i)
+            for i in range(len(edges) - 1):
+                for x in sVert[i]:
+                    if x in sVert[i + 1] and x not in sVtx:
+                        sVtx.append(x)
+            for i in sVert:
+                for x in i:
+                    if x not in sVtx:
+                        sVtx.append(x)
 
             vtxPoint = [sMesh.getPoint(i) for i in sVtx]
             mergeVertices = True
@@ -410,13 +389,14 @@ class OuVoronoi:
 
     @staticmethod
     def int_point_generator(num, obj):
+        """ Generate point inside object mesh """
         cmds.select(obj)
         sel_list = OpenMaya.MGlobal.getActiveSelectionList()
         sel_dag = sel_list.getDagPath(0)
         mesh_obj = OpenMaya.MFnMesh(sel_dag)
         bbPts = mesh_obj.boundingBox
 
-        xPts = 1000
+        xPts = 10000 #BBox point
         vX = [random.uniform(bbPts.max[0], bbPts.min[0]) for i in xrange(xPts)]
         vY = [random.uniform(bbPts.max[1], bbPts.min[1]) for i in xrange(xPts)]
         vZ = [random.uniform(bbPts.max[2], bbPts.min[2]) for i in xrange(xPts)]
@@ -424,7 +404,7 @@ class OuVoronoi:
 
         ray_point = OpenMaya.MFloatPointArray()
         [ray_point.append(i) for i in vZip]
-        rayDirection = OpenMaya.MFloatVector((bbPts.max[0] * 2, bbPts.max[1] * 2, bbPts.max[2] * 2))
+        rayDirection = OpenMaya.MFloatVector((bbPts.max[0]*2, bbPts.max[1]*2, bbPts.max[2]*2))
         space = OpenMaya.MSpace.kWorld
         maxParam = 9999999
         testBothDirections = False
@@ -477,7 +457,7 @@ class OuVoronoi:
 
         sel = cmds.ls(sl=True)
         cmds.makeIdentity(apply=True, t=True, r=True, s=True, n=1, pn=True)
-        surfaceMat = Common.shaderInit(sel[0], 0.461, 1.0, 0.0, 'inMat_')
+        surfaceMat = Common.shaderInit(sel[0], 1.0, 0.583, 0.583, 'inMat_')
         outMat = self.material(sel[0], 0.78, 0.78, 0.78)
         bbPts = self.int_point_generator(num, sel)
 
@@ -490,7 +470,6 @@ class OuVoronoi:
         pm.button('shButt', e=True, vis=False)
         pm.button('clButt', e=True, vis=True)
         self.scanFunc = False
-        print "Shattering of %d chunks..." % num
 
         for vOut in bbPts:
             if self.scanFunc:
@@ -510,7 +489,6 @@ class OuVoronoi:
             cmds.xform(shardObj, cp=True)
             pm.rename(shardObj, (sel[0] + '_shard_' + str(step)))
             pm.refresh(cv=True)
-        pm.select(shardGroup)
         self.chBxTrVtxC(sel[0], shardGroup)
         Common.fixInNormal(shardGroup, sel[0], 'SG')
 
@@ -524,6 +502,6 @@ class OuVoronoi:
 def initUI():
     UI()
 
-ov = OuVoronoi()
+vs = vShatter()
 fr = SouPVoronoi()
-Common = Common() 
+Common = Common()
