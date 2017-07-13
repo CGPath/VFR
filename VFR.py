@@ -3,9 +3,6 @@ import random
 import pymel.core as pm
 import maya.mel as mel
 import maya.api.OpenMaya as OpenMaya
-import collections
-import itertools
-
 
 class UI:
     selBuffer = []
@@ -22,8 +19,8 @@ class UI:
 
         # layout A
         pm.tabLayout()
-        pm.formLayout('FAST shatter (SouP)')
-        pm.frameLayout(label="SouP Voronoi shattering", w=358)
+        pm.formLayout('FAST shatter (SOuP)')
+        pm.frameLayout(label="SOuP Voronoi shattering", w=358)
         pm.columnLayout('cl1', adjustableColumn=True, columnAlign="center", columnAttach=('both', 2))
         pm.separator(h=10, st="in")
         pm.checkBox('chBxA', label="Create inside-outside material (experemental)")
@@ -42,7 +39,7 @@ class UI:
         pm.separator(h=5, st="in")
         pm.button('shatterButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c=lambda x: Common.startCheckSouP(), h=30)
 
-        pm.text('textA', label="Select single polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
+        pm.text('textA', label="Select a single polygonal object!", vis=False, bgc=(1.0, 0.3, 0.0))
         pm.separator(h=5, st="in")
 
         pm.button('crChButt', label="CREATE SHARDS", c=lambda x: fr.sepsShard(), h=30, vis=False, bgc=(0.0, 0.5, 0.0))
@@ -53,7 +50,7 @@ class UI:
         pm.button('cancelButtB', label="CANCEL", bgc=(1.0, 0.4, 0.0), c=lambda x: fr.clCommandB(), vis=False, h=30)
         pm.separator('sepB2', h=5, st="in", vis=False)
         pm.separator(h=10, st="none")
-        pm.progressBar('prgsA',isInterruptable=True, vis=False)
+        pm.progressBar('prgsA', isInterruptable=True, vis=False)
         pm.separator(h=10, st="none")
         pm.setParent('..')
         pm.setParent('..')
@@ -73,7 +70,7 @@ class UI:
         pm.separator(h=2, st="none")
         pm.separator(h=5, st="in")
         pm.button('shButt', label="SHATTER OBJECT", bgc=(0.0, 0.5, 0.0), c=lambda x: vs.selInfCheck(), vis=True, h=30)
-        pm.text('textF', label="Select polygon object!", vis=False, bgc=(1.0, 0.3, 0.0))
+        pm.text('textF', label="Select a polygonal object!", vis=False, bgc=(1.0, 0.3, 0.0))
         pm.button('clButt', label="CANCEL", bgc=(1.0, 0.4, 0.0), c=lambda x: vs.clCommand('shButt', 'clButt', 'prgs'),
                   vis=False, h=30)
         pm.separator(h=5, st="in")
@@ -165,7 +162,6 @@ class SouPVoronoi(UI):
         pm.rowLayout('rowL', e=True, vis=True)
         pm.button('shatterButt', e=True, vis=False)
         pm.text('textA', edit=True, vis=False)
-        # create variable
 
         # connect attribute
         pm.setAttr((self.selArr[0] + ".visibility"), 1)
@@ -389,7 +385,9 @@ class vShatter:
 
     @staticmethod
     def int_point_generator(num, obj):
-        """ Generate point inside object mesh """
+
+        """ Generate points inside object mesh """
+
         cmds.select(obj)
         sel_list = OpenMaya.MGlobal.getActiveSelectionList()
         sel_dag = sel_list.getDagPath(0)
