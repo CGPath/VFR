@@ -16,7 +16,8 @@ VFR.initUI()
 4. Watch video instruction how to use this script
 
 
-For Maya 2016 and old: copy VFR_old.py and use command:
+For Maya 2016 and old: 
+copy VFR_old.py and use command
 ```python
 import VFR_old as vfr
 reload(vfr)
