@@ -13,7 +13,7 @@ VFR.initUI()
 ```
 
 3. Save Script to Shelf...
-4. Watch video instruction how to use this script
+4. Watch video instruction how to use this script - [link](https://www.youtube.com/watch?v=I17AOtr-5D4)
 
 
 For Maya 2016 and old: 
