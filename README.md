@@ -1,7 +1,7 @@
 # VFR
-Simple shatter script. Use SOuP or VFR(Voronoi algorithm)
+Simple shatter script for Maya. SOuP or VFR(Voronoi algorithm)
 
-**For use "SOuP FAST" install SOuP ( www.soup-dev.com ) it not free or trial 15 days**
+**For use "SOuP FAST" install SOuP ( www.soup-dev.com ) it not free or use old version**
 
 If you use Maya 2016.5, 2017:
 
