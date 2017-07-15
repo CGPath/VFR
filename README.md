@@ -23,3 +23,4 @@ import VFR_old as vfr
 reload(vfr)
 vfr.initUI()
 ```
+*VFR_old tested in Maya 2016*
